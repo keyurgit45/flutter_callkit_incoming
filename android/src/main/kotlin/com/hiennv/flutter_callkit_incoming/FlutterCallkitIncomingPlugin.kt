@@ -429,7 +429,14 @@ class FlutterCallkitIncomingPlugin : FlutterPlugin, MethodCallHandler, ActivityA
                 "body" to body
             )
             Handler(Looper.getMainLooper()).post {
-                eventSink?.success(data)
+                try {
+                    // Check if eventSink is available before sending
+                    eventSink?.success(data)
+                } catch (e: Exception) {
+                    // Catch any exceptions when Flutter engine is detached
+                    // This prevents the FlutterJNI error when app is in background
+                    android.util.Log.d("CallkitIncoming", "Unable to send event to Flutter (engine detached): $event")
+                }
             }
         }
 

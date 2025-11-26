@@ -117,6 +117,7 @@
                 tools:ignore="UseCompoundDrawables">
 
                 <com.hiennv.flutter_callkit_incoming.widgets.RippleRelativeLayout
+                    android:id="@+id/llDeclineRipple"
                     android:layout_width="@dimen/size_button_x2_5"
                     android:layout_height="@dimen/size_button_x2_5"
                     app:ripple_amount="4"

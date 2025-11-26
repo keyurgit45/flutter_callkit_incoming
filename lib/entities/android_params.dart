@@ -16,6 +16,9 @@ class AndroidParams {
     this.backgroundUrl,
     this.actionColor,
     this.textColor,
+    this.declineTextColor,
+    this.isShowDeclineRipple,
+    this.isShowBackgroundRipple,
     this.incomingCallNotificationChannelName,
     this.missedCallNotificationChannelName,
     this.isShowFullLockedScreen,
@@ -52,6 +55,15 @@ class AndroidParams {
 
   /// Color used for the text in the full screen notification
   final String? textColor;
+
+  /// Color used for the decline button text
+  final String? declineTextColor;
+
+  /// Show ripple animation on decline button (default: true)
+  final bool? isShowDeclineRipple;
+
+  /// Show ripple animation in background (default: false)
+  final bool? isShowBackgroundRipple;
 
   /// Notification channel name of incoming call.
   final String? incomingCallNotificationChannelName;

@@ -120,31 +120,38 @@ class CallkitIncomingBroadcastReceiver : BroadcastReceiver() {
             "${context.packageName}.${CallkitConstants.ACTION_CALL_ACCEPT}" -> {
                 try {
                     // Log.d(TAG, "[CALLKIT] 📱 ACTION_CALL_ACCEPT")
+                    // Notify native accept callbacks first (always works)
                     FlutterCallkitIncomingPlugin.notifyEventCallbacks(CallkitEventCallback.CallEvent.ACCEPT, data)
-                    // start service and show ongoing call when call is accepted
+                    // Start service and show ongoing call when call is accepted
                     CallkitNotificationService.startServiceWithAction(
                         context,
                         CallkitConstants.ACTION_CALL_ACCEPT,
                         data
                     )
-                    sendEventFlutter(CallkitConstants.ACTION_CALL_ACCEPT, data)
+                    // Add call to active calls
                     addCall(context, Data.fromBundle(data), true)
+                    // Try to send event to Flutter (may fail if engine is detached)
+                    // This is now safe due to our try-catch in EventCallbackHandler
+                    sendEventFlutter(CallkitConstants.ACTION_CALL_ACCEPT, data)
                 } catch (error: Exception) {
-                    Log.e(TAG, null, error)
+                    Log.e(TAG, "Error handling accept action", error)
                 }
             }
 
             "${context.packageName}.${CallkitConstants.ACTION_CALL_DECLINE}" -> {
                 try {
-                    // Log.d(TAG, "[CALLKIT] 📱 ACTION_CALL_DECLINE")           
-                    // Notify native decline callbacks
+                    // Log.d(TAG, "[CALLKIT] 📱 ACTION_CALL_DECLINE")
+                    // Notify native decline callbacks first (always works)
                     FlutterCallkitIncomingPlugin.notifyEventCallbacks(CallkitEventCallback.CallEvent.DECLINE, data)
-                    // clear notification
+                    // Clear notification immediately (most important for UX)
                     getCallkitNotificationManager()?.clearIncomingNotification(data, false)
-                    sendEventFlutter(CallkitConstants.ACTION_CALL_DECLINE, data)
+                    // Remove call from active calls
                     removeCall(context, Data.fromBundle(data))
+                    // Try to send event to Flutter (may fail if engine is detached)
+                    // This is now safe due to our try-catch in EventCallbackHandler
+                    sendEventFlutter(CallkitConstants.ACTION_CALL_DECLINE, data)
                 } catch (error: Exception) {
-                    Log.e(TAG, null, error)
+                    Log.e(TAG, "Error handling decline action", error)
                 }
             }
 

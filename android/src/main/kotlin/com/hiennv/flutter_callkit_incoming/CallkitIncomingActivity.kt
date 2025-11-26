@@ -66,15 +66,16 @@ class CallkitIncomingActivity : Activity() {
     private lateinit var ivBackground: ImageView
     private lateinit var llBackgroundAnimation: RippleRelativeLayout
 
-    private lateinit var tvNameCaller: TextView
-    private lateinit var tvNumber: TextView
-    private lateinit var ivLogo: ImageView
-    private lateinit var ivAvatar: CircleImageView
+    private var tvNameCaller: TextView? = null
+    private var tvNumber: TextView? = null
+    private var ivLogo: ImageView? = null
+    private var ivAvatar: CircleImageView? = null
 
     private lateinit var llAction: LinearLayout
     private lateinit var ivAcceptCall: ImageView
     private lateinit var tvAccept: TextView
 
+    private lateinit var llDeclineRipple: RippleRelativeLayout
     private lateinit var ivDeclineCall: ImageView
     private lateinit var tvDecline: TextView
 
@@ -174,18 +175,18 @@ class CallkitIncomingActivity : Activity() {
 
         val textColor = data?.getString(CallkitConstants.EXTRA_CALLKIT_TEXT_COLOR, "#ffffff")
         val isShowCallID = data?.getBoolean(CallkitConstants.EXTRA_CALLKIT_IS_SHOW_CALL_ID, false)
-        tvNameCaller.text = data?.getString(CallkitConstants.EXTRA_CALLKIT_NAME_CALLER, "")
-        tvNumber.text = data?.getString(CallkitConstants.EXTRA_CALLKIT_HANDLE, "")
-        tvNumber.visibility = if (isShowCallID == true) View.VISIBLE else View.INVISIBLE
+        tvNameCaller?.text = data?.getString(CallkitConstants.EXTRA_CALLKIT_NAME_CALLER, "")
+        tvNumber?.text = data?.getString(CallkitConstants.EXTRA_CALLKIT_HANDLE, "")
+        tvNumber?.visibility = if (isShowCallID == true) View.VISIBLE else View.INVISIBLE
 
         try {
-            tvNameCaller.setTextColor(Color.parseColor(textColor))
-            tvNumber.setTextColor(Color.parseColor(textColor))
+            tvNameCaller?.setTextColor(Color.parseColor(textColor))
+            tvNumber?.setTextColor(Color.parseColor(textColor))
         } catch (error: Exception) {
         }
 
         val isShowLogo = data?.getBoolean(CallkitConstants.EXTRA_CALLKIT_IS_SHOW_LOGO, false)
-        ivLogo.visibility = if (isShowLogo == true) View.VISIBLE else View.INVISIBLE
+        ivLogo?.visibility = if (isShowLogo == true) View.VISIBLE else View.INVISIBLE
         var logoUrl = data?.getString(CallkitConstants.EXTRA_CALLKIT_LOGO_URL, "")
         if (!logoUrl.isNullOrEmpty()) {
             if (!logoUrl.startsWith("http://", true) && !logoUrl.startsWith("https://", true)) {
@@ -193,18 +194,18 @@ class CallkitIncomingActivity : Activity() {
             }
             val headers =
                 data?.getSerializable(CallkitConstants.EXTRA_CALLKIT_HEADERS) as HashMap<String, Any?>
-            ImageLoaderProvider.loadImage(this@CallkitIncomingActivity, logoUrl, headers, R.drawable.transparent, ivLogo)
+            ivLogo?.let { ImageLoaderProvider.loadImage(this@CallkitIncomingActivity, logoUrl, headers, R.drawable.transparent, it) }
         }
 
         var avatarUrl = data?.getString(CallkitConstants.EXTRA_CALLKIT_AVATAR, "")
         if (!avatarUrl.isNullOrEmpty()) {
-            ivAvatar.visibility = View.VISIBLE
+            ivAvatar?.visibility = View.VISIBLE
             if (!avatarUrl.startsWith("http://", true) && !avatarUrl.startsWith("https://", true)) {
                 avatarUrl = String.format("file:///android_asset/flutter_assets/%s", avatarUrl)
             }
             val headers =
                 data?.getSerializable(CallkitConstants.EXTRA_CALLKIT_HEADERS) as HashMap<String, Any?>
-            ImageLoaderProvider.loadImage(this@CallkitIncomingActivity, avatarUrl, headers, R.drawable.ic_default_avatar, ivAvatar)
+            ivAvatar?.let { ImageLoaderProvider.loadImage(this@CallkitIncomingActivity, avatarUrl, headers, R.drawable.ic_default_avatar, it) }
         }
 
         val callType = data?.getInt(CallkitConstants.EXTRA_CALLKIT_TYPE, 0) ?: 0
@@ -223,9 +224,13 @@ class CallkitIncomingActivity : Activity() {
         tvDecline.text =
             if (TextUtils.isEmpty(textDecline)) getString(R.string.text_decline) else textDecline
 
+        val declineTextColor = data?.getString(CallkitConstants.EXTRA_CALLKIT_DECLINE_TEXT_COLOR, "#A54444")
         try {
             tvAccept.setTextColor(Color.parseColor(textColor))
-            tvDecline.setTextColor(Color.parseColor(textColor))
+        } catch (error: Exception) {
+        }
+        try {
+            tvDecline.setTextColor(Color.parseColor(declineTextColor))
         } catch (error: Exception) {
         }
 
@@ -249,6 +254,24 @@ class CallkitIncomingActivity : Activity() {
                 data?.getSerializable(CallkitConstants.EXTRA_CALLKIT_HEADERS) as HashMap<String, Any?>
             ImageLoaderProvider.loadImage(this@CallkitIncomingActivity, backgroundUrl, headers, R.drawable.transparent, ivBackground)
         }
+
+        val isShowDeclineRipple = data?.getBoolean(CallkitConstants.EXTRA_CALLKIT_IS_SHOW_DECLINE_RIPPLE, true) ?: true
+        if (!isShowDeclineRipple) {
+            // Disable ripple by stopping animation
+            llDeclineRipple.stopRippleAnimation()
+        } else {
+            // Enable ripple (default behavior - already started in initView)
+            llDeclineRipple.startRippleAnimation()
+        }
+
+        val isShowBackgroundRipple = data?.getBoolean(CallkitConstants.EXTRA_CALLKIT_IS_SHOW_BACKGROUND_RIPPLE, false) ?: false
+        if (!isShowBackgroundRipple) {
+            // Disable background ripple by stopping animation
+            llBackgroundAnimation.stopRippleAnimation()
+        } else {
+            // Enable background ripple
+            llBackgroundAnimation.startRippleAnimation()
+        }
     }
 
     private fun finishTimeout(data: Bundle?, duration: Long) {
@@ -270,7 +293,6 @@ class CallkitIncomingActivity : Activity() {
         llBackgroundAnimation = findViewById(R.id.llBackgroundAnimation)
         llBackgroundAnimation.layoutParams.height =
             Utils.getScreenWidth() + Utils.getStatusBarHeight(this@CallkitIncomingActivity)
-        llBackgroundAnimation.startRippleAnimation()
 
         tvNameCaller = findViewById(R.id.tvNameCaller)
         tvNumber = findViewById(R.id.tvNumber)
@@ -285,6 +307,7 @@ class CallkitIncomingActivity : Activity() {
 
         ivAcceptCall = findViewById(R.id.ivAcceptCall)
         tvAccept = findViewById(R.id.tvAccept)
+        llDeclineRipple = findViewById(R.id.llDeclineRipple)
         ivDeclineCall = findViewById(R.id.ivDeclineCall)
         tvDecline = findViewById(R.id.tvDecline)
         animateAcceptCall()
@@ -295,6 +318,10 @@ class CallkitIncomingActivity : Activity() {
         ivDeclineCall.setOnClickListener {
             onDeclineClick()
         }
+
+        // Stop ripples by default - let incomingData() start them if needed
+        llBackgroundAnimation.stopRippleAnimation()
+        llDeclineRipple.stopRippleAnimation()
     }
 
     private fun animateAcceptCall() {

@@ -141,6 +141,12 @@ data class Data(val args: Map<String, Any?>) {
     @JsonProperty("isBot")
     var isBot: Boolean = false
 
+    @JsonProperty("isShowDeclineRipple")
+    var isShowDeclineRipple: Boolean = true
+
+    @JsonProperty("isShowBackgroundRipple")
+    var isShowBackgroundRipple: Boolean = false
+
     init {
         var android: Map<String, Any?>? = args["android"] as? HashMap<String, Any?>?
         android = android ?: args
@@ -160,6 +166,8 @@ data class Data(val args: Map<String, Any?>) {
         isShowFullLockedScreen = android["isShowFullLockedScreen"] as? Boolean ?: true
         isImportant = android["isImportant"] as? Boolean ?: false
         isBot = android["isBot"] as? Boolean ?: false
+        isShowDeclineRipple = android["isShowDeclineRipple"] as? Boolean ?: true
+        isShowBackgroundRipple = android["isShowBackgroundRipple"] as? Boolean ?: false
 
 
         val missedNotification: Map<String, Any?>? =
@@ -325,6 +333,14 @@ data class Data(val args: Map<String, Any?>) {
             CallkitConstants.EXTRA_CALLKIT_IS_BOT,
             isBot,
         )
+        bundle.putBoolean(
+            CallkitConstants.EXTRA_CALLKIT_IS_SHOW_DECLINE_RIPPLE,
+            isShowDeclineRipple
+        )
+        bundle.putBoolean(
+            CallkitConstants.EXTRA_CALLKIT_IS_SHOW_BACKGROUND_RIPPLE,
+            isShowBackgroundRipple
+        )
         return bundle
     }
 
@@ -431,6 +447,14 @@ data class Data(val args: Map<String, Any?>) {
             data.isShowFullLockedScreen = bundle.getBoolean(
                 CallkitConstants.EXTRA_CALLKIT_IS_SHOW_FULL_LOCKED_SCREEN,
                 true
+            )
+            data.isShowDeclineRipple = bundle.getBoolean(
+                CallkitConstants.EXTRA_CALLKIT_IS_SHOW_DECLINE_RIPPLE,
+                true
+            )
+            data.isShowBackgroundRipple = bundle.getBoolean(
+                CallkitConstants.EXTRA_CALLKIT_IS_SHOW_BACKGROUND_RIPPLE,
+                false
             )
             return data
         }
