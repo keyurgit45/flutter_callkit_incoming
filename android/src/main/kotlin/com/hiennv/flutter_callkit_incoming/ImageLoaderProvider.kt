@@ -71,6 +71,30 @@ object ImageLoaderProvider {
         imageLoader.enqueue(requestBuilder.build())
     }
 
+    fun loadImageWithAnimation(
+        context: Context,
+        url: String,
+        headers: HashMap<String, Any?>?,
+        placeholder: Int,
+        target: ImageView
+    ) {
+        val imageLoader = get(context, headers)
+        val requestBuilder = ImageRequest.Builder(context)
+        headers?.forEach { (key, value) ->
+            value?.toString()?.let {
+                requestBuilder.addHeader(key, it)
+            }
+        }
+        requestBuilder.data(url)
+        requestBuilder.allowHardware(false)
+        requestBuilder.placeholder(placeholder)
+        requestBuilder.error(placeholder)
+        // NO CircleTransform - the custom view handles circular masking for animated drawables
+        requestBuilder.target(target)
+
+        imageLoader.enqueue(requestBuilder.build())
+    }
+
 
 }
 

@@ -20,7 +20,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.hiennv.flutter_callkit_incoming.widgets.RippleRelativeLayout
-import de.hdodenhof.circleimageview.CircleImageView
+import com.hiennv.flutter_callkit_incoming.widgets.AnimatedCircleImageView
 import kotlin.math.abs
 import android.view.ViewGroup.MarginLayoutParams
 import android.os.PowerManager
@@ -69,7 +69,7 @@ class CallkitIncomingActivity : Activity() {
     private var tvNameCaller: TextView? = null
     private var tvNumber: TextView? = null
     private var ivLogo: ImageView? = null
-    private var ivAvatar: CircleImageView? = null
+    private var ivAvatar: AnimatedCircleImageView? = null
 
     private lateinit var llAction: LinearLayout
     private lateinit var ivAcceptCall: ImageView
@@ -205,7 +205,7 @@ class CallkitIncomingActivity : Activity() {
             }
             val headers =
                 data?.getSerializable(CallkitConstants.EXTRA_CALLKIT_HEADERS) as HashMap<String, Any?>
-            ivAvatar?.let { ImageLoaderProvider.loadImage(this@CallkitIncomingActivity, avatarUrl, headers, R.drawable.ic_default_avatar, it) }
+            ivAvatar?.let { ImageLoaderProvider.loadImageWithAnimation(this@CallkitIncomingActivity, avatarUrl, headers, R.drawable.ic_default_avatar, it) }
         }
 
         val callType = data?.getInt(CallkitConstants.EXTRA_CALLKIT_TYPE, 0) ?: 0
@@ -294,10 +294,11 @@ class CallkitIncomingActivity : Activity() {
         llBackgroundAnimation.layoutParams.height =
             Utils.getScreenWidth() + Utils.getStatusBarHeight(this@CallkitIncomingActivity)
 
-        tvNameCaller = findViewById(R.id.tvNameCaller)
-        tvNumber = findViewById(R.id.tvNumber)
-        ivLogo = findViewById(R.id.ivLogo)
-        ivAvatar = findViewById(R.id.ivAvatar)
+        // Views commented out in layout XML - keeping as null
+        // tvNameCaller = findViewById(R.id.tvNameCaller)
+        // tvNumber = findViewById(R.id.tvNumber)
+        // ivLogo = findViewById(R.id.ivLogo)
+        // ivAvatar = findViewById(R.id.ivAvatar)
 
         llAction = findViewById(R.id.llAction)
 
